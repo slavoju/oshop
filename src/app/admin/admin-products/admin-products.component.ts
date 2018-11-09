@@ -10,7 +10,7 @@ import { Entity } from 'src/app/models/entity';
   templateUrl: './admin-products.component.html',
   styleUrls: ['./admin-products.component.scss']
 })
-export class AdminProductsComponent implements OnInit, OnDestroy {
+export class AdminProductsComponent implements OnDestroy {
   products: Entity<Product>[];
   filteredProducts: Entity<Product>[];
   subscription: Subscription;
@@ -27,9 +27,6 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
   filter(query: string) {
     this.filteredProducts = (query) ?
       this.products.filter(p => p.value.title.toLowerCase().includes(query.toLowerCase())) : this.products;
-  }
-
-  ngOnInit() {
   }
 
   ngOnDestroy() {
