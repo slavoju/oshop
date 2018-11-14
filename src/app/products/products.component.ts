@@ -1,40 +1,53 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../services/product.service';
 import { map, switchMap } from 'rxjs/operators';
-import { Entity } from '../models/entity';
 import { Product } from '../models/product';
 import { ActivatedRoute } from '@angular/router';
+import { ShoppingCartService } from '../services/shopping-cart.service';
+import { Observable } from 'rxjs';
+import { ShoppingCart } from '../models/shopping-cart';
 
 @Component({
   selector: 'products',
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss']
 })
-export class ProductsComponent implements OnDestroy {
+export class ProductsComponent implements OnInit {
   category: string;
-  products: Entity<Product>[] = [];
-  filteredProducts: Entity<Product>[];
-  subscription;
+  products: Product[] = [];
+  filteredProducts: Product[];
+  cart$: Observable<ShoppingCart>;
 
   constructor(
-    route: ActivatedRoute,
-    productService: ProductService) {
-      this.subscription  = productService.getAll()
-        .snapshotChanges()
-        .pipe(map(changes => {
-          return changes.map(p => ({ key: p.key, value: p.payload.val() }));
-        }))
-        .pipe(switchMap(products => {
-          this.products = products;
-          return route.queryParamMap; }))
-        .subscribe(params => {
-            this.category = params.get('category');
-            this.filteredProducts = (this.category) ?
-            this.products.filter(v => v.value.category === this.category) : this.products;
-        });
-    }
+    private route: ActivatedRoute,
+    private productService: ProductService,
+    private shoppingCartService: ShoppingCartService) { }
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+  async ngOnInit() {
+    this.cart$ = (await this.shoppingCartService.getCart());
+    this.populateProducts();
+  }
+
+  private populateProducts() {
+    this.productService.getAll()
+      .snapshotChanges()
+      .pipe(map(changes => {
+        return changes.map(p => ({
+          ...p.payload.val(),
+          $key: p.key
+        }));
+      }))
+      .pipe(switchMap(products => {
+        this.products = products;
+        return this.route.queryParamMap; }))
+      .subscribe(params => {
+        this.category = params.get('category');
+        this.applyFilter();
+      });
+  }
+
+  private applyFilter() {
+    this.filteredProducts = (this.category) ?
+    this.products.filter(v => v.category === this.category) : this.products;
   }
 }

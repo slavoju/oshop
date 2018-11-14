@@ -8,22 +8,22 @@
     <thead>
         <tr>
             <th>
-                <mfDefaultSorter by="value.title">Title</mfDefaultSorter>
+                <mfDefaultSorter by="title">Title</mfDefaultSorter>
             </th>
             <th>
-                <mfDefaultSorter by="value.price">Price</mfDefaultSorter>                   
+                <mfDefaultSorter by="price">Price</mfDefaultSorter>                   
             </th>
             <th>
-                <mfDefaultSorter by="key">Key</mfDefaultSorter>                   
+                <mfDefaultSorter by="$key">Key</mfDefaultSorter>                   
             </th>
         </tr>
     </thead>
     <tbody>
         <tr *ngFor="let item of mf.data">
-            <td>{{ item.value.title }}</td>
-            <td>{{ item.value.price | currency:'EUR':true }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.price | currency:'EUR':true }}</td>
             <td>
-                <a [routerLink]="['/admin/products', item.key]">Edit</a>
+                <a [routerLink]="['/admin/products', item.$key]">Edit</a>
             </td>
         </tr>
     </tbody>

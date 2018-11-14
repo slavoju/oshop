@@ -3,7 +3,6 @@ import { ProductService } from 'src/app/services/product.service';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Product } from 'src/app/models/product';
-import { Entity } from 'src/app/models/entity';
 
 @Component({
   selector: 'admin-products',
@@ -11,22 +10,25 @@ import { Entity } from 'src/app/models/entity';
   styleUrls: ['./admin-products.component.scss']
 })
 export class AdminProductsComponent implements OnDestroy {
-  products: Entity<Product>[];
-  filteredProducts: Entity<Product>[];
+  products: Product[];
+  filteredProducts: Product[];
   subscription: Subscription;
 
   constructor(private productService: ProductService) {
     this.subscription  = this.productService.getAll()
       .snapshotChanges()
       .pipe(map(changes => {
-        return changes.map(p => ({ key: p.key, value: p.payload.val() }));
+        return changes.map(p => ({
+          ...p.payload.val(),
+          $key: p.key
+        }));
       }))
       .subscribe(products => this.filteredProducts = this.products = products);
   }
 
   filter(query: string) {
     this.filteredProducts = (query) ?
-      this.products.filter(p => p.value.title.toLowerCase().includes(query.toLowerCase())) : this.products;
+      this.products.filter(p => p.title.toLowerCase().includes(query.toLowerCase())) : this.products;
   }
 
   ngOnDestroy() {
