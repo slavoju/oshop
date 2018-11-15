@@ -1,15 +1,21 @@
+import { AuthService } from './../services/auth.service';
+import { OrderService } from './../services/order.service';
 import { Component, OnInit } from '@angular/core';
+import {switchMap } from 'rxjs/operators';
 
 @Component({
-  selector: 'my-orders',
+  selector: 'app-my-orders',
   templateUrl: './my-orders.component.html',
   styleUrls: ['./my-orders.component.scss']
 })
-export class MyOrdersComponent implements OnInit {
+export class MyOrdersComponent {
+  orders$;
 
-  constructor() { }
+  constructor(
+    private authService: AuthService,
+    private orderService: OrderService) {
 
-  ngOnInit() {
+    this.orders$ = authService.user$
+      .pipe(switchMap(u => orderService.getOrdersByUser(u.uid).valueChanges()));
   }
-
 }
